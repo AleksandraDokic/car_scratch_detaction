@@ -82,7 +82,7 @@ def deleteOutTheTires(img_orange, img_black_tresholded):
         cv2.rectangle(img_orange, (x, y), (x + w, y + h), (0, 255, 0), 2)
         cv2.rectangle(img_orange, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)
 
-        if h > h2:
+        if y > y2:
             roi_big = roi_big[0: y + h/2,0:width]
         else:
             roi_big = roi_big[0: y2 + h2/2, 0:width]
@@ -168,7 +168,7 @@ def extractTheCarArea(img):
     img_final = deleteOutTheTires(img_orange_masked, img_black_threshold)
 
     #cv2.imshow("Thresholded", img_orange_threshold)
-    #cv2.imshow("Masked", img_orange_masked)
+    cv2.imshow("Masked", img_orange_masked)
     #cv2.imshow("Black detection", img_black_threshold)
     cv2.imshow("Without tires", img_final)
     return img_final
@@ -219,7 +219,7 @@ def process_video(filename, ed):
 
             frame_back = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            canny = cv2.Canny(frame_back,100,200)
+            canny = cv2.Canny(frame_back,200,400)
 
             cv2.namedWindow("Canny", cv2.WINDOW_NORMAL)
             cv2.resizeWindow("Canny", 400, 400)
@@ -247,6 +247,17 @@ def process_video(filename, ed):
             # Press Q on keyboard to  exit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
+                
+            key = cv2.waitKey(1) & 0xff
+            if key == ord('p'):
+
+                while True:
+
+                    key2 = cv2.waitKey(1) or 0xff
+                    cv2.imshow('frame', frame)
+
+                    if key2 == ord('p'):
+                        break
 
         # Break the loop
         else:

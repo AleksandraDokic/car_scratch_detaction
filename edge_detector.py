@@ -13,22 +13,33 @@ class EdgeDetector:
 
     def __init__(self, w=360, h=200):
         self.em = np.zeros((h,w))
-        self.ew = 2
+        self.ew = 6
         self.w = w
         self.h = h
+        self.cnt_frame = 0
+        self.threshold = 0.2
+        self.cem = np.zeros_like(self.em)
 
     def load(self, filename):
+        self.threshold = 0.7
         self.em = np.load(filename)
-        plt.imshow(self.em)
-        print(self.em[0,0])
-        plt.show()
 
     def store(self, filename):
         self.em = np.minimum(self.em, Label.OLD_SCRATCH)
         np.save(filename, self.em)
+     
+    def resize_frame(self, frame):
+        h, w = frame.shape
+        #print(h, w)
+        frame = frame[h/3:h, w/5:4*w/5]
+        cv2.imshow("Cut frame", frame)
+        #print(frame.shape)
+        frame = cv2.resize(frame, dsize=(self.w, self.h), interpolation=cv2.INTER_LINEAR)
+        #print(frame.shape)
+        return frame
         
     def get_bounding_box(self, frame, val):
-        frame = cv2.resize(frame, dsize=(self.w, self.h), interpolation=cv2.INTER_LINEAR)
+        frame = self.resize_frame(frame)
         mini, minj = self.h, self.w
         maxi, maxj = 0, 0
         for i in range(self.h):
@@ -48,13 +59,22 @@ class EdgeDetector:
         return self.get_bounding_box(frame, Label.NEW_SCRATCH)
 
     def add_new_edges(self, frame, val = Label.NEW_SCRATCH):
-        print(frame.shape)
-        print(np.unique(frame))
-        # mark the new scratch
-        print(type(Label.NEW_SCRATCH))
-        frame = cv2.resize(frame, dsize=(self.w, self.h), interpolation=cv2.INTER_LINEAR)
-        for i in range(self.h):
-            for j in range(self.w):
-                if (frame[i,j] > 0 and self.em[i,j] == 0):
-                    self.em[max(0,i-self.ew):min(self.h,i+self.ew+1),max(0,j-self.ew):min(self.w,j+self.ew+1)] = 1#Label.NEW_SCRATCH
+        frame = self.resize_frame(frame)
         
+        if (self.cnt_frame < 20):
+            self.cem += frame
+            self.cnt_frame += 1
+        else:
+            self.cnt_frame = 0
+            self.cem /= 255
+            print(frame.shape)
+            print(np.unique(frame))
+            # mark the new scratch
+            print(type(Label.NEW_SCRATCH))
+            for i in range(self.h):
+                for j in range(self.w):
+                    if (self.cem[i,j] > self.threshold*20 and self.em[i,j] == 0):
+                        self.em[max(0,i-self.ew):min(self.h,i+self.ew+1),max(0,j-self.ew):min(self.w,j+self.ew+1)] = 1#Label.NEW_SCRATCH
+                    
+            self.cem = np.zeros_like(self.em)
+        cv2.imshow("Car features", self.em)
