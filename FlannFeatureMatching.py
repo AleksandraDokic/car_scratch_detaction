@@ -6,7 +6,7 @@
 import cv2
 import numpy as np
 import os
-
+from edge_detector import EdgeDetector
 
 ##################################
 # gets thresholded image within specified colour range
@@ -167,11 +167,11 @@ def extractTheCarArea(img):
 
     img_final = deleteOutTheTires(img_orange_masked, img_black_threshold)
 
-    cv2.imshow("Thresholded", img_orange_threshold)
-    cv2.imshow("Masked", img_orange_masked)
-    cv2.imshow("Black detection", img_black_threshold)
+    #cv2.imshow("Thresholded", img_orange_threshold)
+    #cv2.imshow("Masked", img_orange_masked)
+    #cv2.imshow("Black detection", img_black_threshold)
     cv2.imshow("Without tires", img_final)
-
+    return img_final
 
 '''def match_template(img_src, img_dst, template, threshold, color):
 
@@ -196,63 +196,64 @@ def extractTheCarArea(img):
 def define_random_point(img):
     pass
 
-# Create a VideoCapture object and read from input file
-# If the input is the camera, pass 0 instead of the video file name
-cap = cv2.VideoCapture('demaged.mp4')
+def process_video(filename, ed):
 
-# Check if camera opened successfully
-if (cap.isOpened() == False):
-    print("Error opening video stream or file")
+    # Create a VideoCapture object and read from input file
+    # If the input is the camera, pass 0 instead of the video file name
+    cap = cv2.VideoCapture(filename)
 
-# Read until video is completed
-while (cap.isOpened()):
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-    if ret == True:
+    # Check if camera opened successfully
+    if (cap.isOpened() == False):
+        print("Error opening video stream or file")
 
-        # Display the resulting frame
-        cv2.namedWindow("Frame", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Frame", 400, 400)
-        cv2.imshow('Frame', frame)
+    # Read until video is completed
+    while (cap.isOpened()):
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        if ret == True:
 
-        frame_back = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # Display the resulting frame
+            cv2.namedWindow("Frame", cv2.WINDOW_NORMAL)
+            cv2.resizeWindow("Frame", 400, 400)
+            cv2.imshow('Frame', frame)
 
-        canny = cv2.Canny(frame_back,100,200)
+            frame_back = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        cv2.namedWindow("Canny", cv2.WINDOW_NORMAL)
-        cv2.resizeWindow("Canny", 400, 400)
-        cv2.imshow("Canny", canny)
+            canny = cv2.Canny(frame_back,100,200)
 
-        # extract orange area
-        extractTheCarArea(frame)
+            cv2.namedWindow("Canny", cv2.WINDOW_NORMAL)
+            cv2.resizeWindow("Canny", 400, 400)
+            cv2.imshow("Canny", canny)
 
-        hsv_green = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        height, width = hsv_green.shape[:2]
+            # extract orange area
+            carImage = extractTheCarArea(frame)
 
-        # do template matching
+            ed.add_new_edges(cv2.Canny(carImage,100,200))
 
-        match = cv2.imread("bmw.png")
-        frame_copy = frame.copy()
-        #match_template(frame, frame_copy, match, 0.7, (0, 255, 0))
+            hsv_green = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            height, width = hsv_green.shape[:2]
 
-        cv2.imshow("Matched", frame_copy)
+            # do template matching
+            #match = cv2.imread("bmw.png")
+            #frame_copy = frame.copy()
+            #match_template(frame, frame_copy, match, 0.7, (0, 255, 0))
+            #cv2.imshow("Matched", frame_copy)
 
-        crop_img = frame[height/2:height/2 + height/10, width/2:width/2 + width/10]
+            crop_img = frame[height/2:height/2 + height/10, width/2:width/2 + width/10]
 
-        cv2.imshow("cropped", crop_img)
+            cv2.imshow("cropped", crop_img)
 
+            print hsv_green[height/2][width/2]
+            # Press Q on keyboard to  exit
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
 
-        print hsv_green[height/2][width/2]
-        # Press Q on keyboard to  exit
-        if cv2.waitKey(25) & 0xFF == ord('q'):
+        # Break the loop
+        else:
             break
 
-    # Break the loop
-    else:
-        break
+    # When everything done, release the video capture object
+    cap.release()
 
-# When everything done, release the video capture object
-cap.release()
-
-# Closes all the frames
-cv2.destroyAllWindows()
+    # Closes all the frames
+    cv2.destroyAllWindows()
