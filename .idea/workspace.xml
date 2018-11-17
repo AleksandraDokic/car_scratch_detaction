@@ -16,10 +16,12 @@
       <file leaf-file-name="FlannFeatureMatching.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FlannFeatureMatching.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="311">
-              <caret line="437" column="6" selection-start-line="437" selection-start-column="6" selection-end-line="437" selection-end-column="6" />
+            <state relative-caret-position="1042">
+              <caret line="87" column="42" selection-start-line="87" selection-start-column="42" selection-end-line="87" selection-end-column="42" />
               <folding>
                 <element signature="e#233#243#0" expanded="true" />
+                <element signature="e#352#2307#0" />
+                <element signature="e#3915#4622#1" />
               </folding>
             </state>
           </provider>
@@ -157,6 +159,8 @@
           <caret line="396" column="31" selection-start-line="396" selection-start-column="31" selection-end-line="396" selection-end-column="31" />
           <folding>
             <element signature="e#233#243#0" expanded="true" />
+            <element signature="e#352#2307#0" />
+            <element signature="e#3915#4622#1" />
           </folding>
         </state>
       </provider>
@@ -167,16 +171,20 @@
           <caret line="24" column="41" lean-forward="true" selection-start-line="24" selection-start-column="41" selection-end-line="24" selection-end-column="41" />
           <folding>
             <element signature="e#233#243#0" expanded="true" />
+            <element signature="e#352#2307#0" />
+            <element signature="e#3915#4622#1" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/FlannFeatureMatching.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="437" column="6" selection-start-line="437" selection-start-column="6" selection-end-line="437" selection-end-column="6" />
+        <state relative-caret-position="1042">
+          <caret line="87" column="42" selection-start-line="87" selection-start-column="42" selection-end-line="87" selection-end-column="42" />
           <folding>
             <element signature="e#233#243#0" expanded="true" />
+            <element signature="e#352#2307#0" />
+            <element signature="e#3915#4622#1" />
           </folding>
         </state>
       </provider>
