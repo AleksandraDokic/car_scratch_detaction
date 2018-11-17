@@ -410,24 +410,32 @@ def extractBlueAreas2(img):
     # find the colors within the specified boundaries and apply
     # the mask
     #mask = cv2.inRange(image, lower, upper)
-    output = cv2.bitwise_and(img, img, mask=imgExtractBlueThreshold)
+    img_copy = img.copy()
+    output = cv2.bitwise_and(img_copy, img_copy, mask=imgExtractBlueThreshold)
+
+    cv2.imshow("Mhm", output)
 
     ret, thresh = cv2.threshold(imgExtractBlueThreshold, 40, 255, 0)
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+    roi = img.copy()
+
     if len(contours) != 0:
         # draw in blue the contours that were founded
-        cv2.drawContours(output, contours, -1, 255, 3)
+        cv2.drawContours(img_copy, contours, -1, 255, 3)
 
         # find the biggest area
         c = max(contours, key=cv2.contourArea)
 
         x, y, w, h = cv2.boundingRect(c)
+        roi = roi[y:y + h][x:x+w]
         # draw the book contour (in green)
-        cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.rectangle(img_copy, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    else:
+        print("No cntours")
 
     # show the images
-    cv2.imshow("Result", np.hstack([image, output]))
+    # cv2.imshow("Result",roi)
 
     #self.imgExtractBlue = self.imgExtractBlueThreshold  # dummy-assignement to avoid crash on imshow!
     #self.imgExtractBlueThresholdOpened = self.fillSmallGaps(self.imgExtractBlueThreshold)
@@ -452,6 +460,9 @@ def match_template(img_src, img_dst, template, threshold, color):
             cv2.rectangle(img_dst, top_left, bottom_right, color, 2)
             return True
         return False
+
+def define_random_point(img):
+    pass
 
 # Create a VideoCapture object and read from input file
 # If the input is the camera, pass 0 instead of the video file name
@@ -490,9 +501,13 @@ while (cap.isOpened()):
 
         match = cv2.imread("bmw.png")
         frame_copy = frame.copy()
-        match_template(frame, frame_copy, match, 0.7, (0, 255, 0))
+        #match_template(frame, frame_copy, match, 0.7, (0, 255, 0))
 
         cv2.imshow("Matched", frame_copy)
+
+        crop_img = frame[height/2:height/2 + height/10, width/2:width/2 + width/10]
+
+        cv2.imshow("cropped", crop_img)
 
 
         print hsv_green[height/2][width/2]
