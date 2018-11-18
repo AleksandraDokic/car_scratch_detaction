@@ -228,6 +228,7 @@ def process_video(filename, ed):
             # extract orange area
             carImage = extractTheCarArea(frame)
 
+            print(carImage.shape)
             ed.add_new_edges(cv2.Canny(carImage,100,200))
 
             hsv_green = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -239,11 +240,7 @@ def process_video(filename, ed):
             #match_template(frame, frame_copy, match, 0.7, (0, 255, 0))
             #cv2.imshow("Matched", frame_copy)
 
-            crop_img = frame[height/2:height/2 + height/10, width/2:width/2 + width/10]
-
-            cv2.imshow("cropped", crop_img)
-
-            print hsv_green[height/2][width/2]
+            #print hsv_green[height/2][width/2]
             # Press Q on keyboard to  exit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 break
@@ -263,8 +260,21 @@ def process_video(filename, ed):
         else:
             break
 
+    
+    ed.add_new_edges(cv2.Canny(carImage,100,200), True)
+    coords = ed.get_new_scratch()
+    h, w = carImage.shape[:2]
+    cv2.rectangle(carImage, (int(round(w*coords[1])), int(round(h*coords[0]))), (int(round(w*coords[3])), int(round(h*coords[2]))), (255,0,0), 2)
+    
+    coords = ed.get_old_scratch()
+    h, w = carImage.shape[:2]
+    cv2.rectangle(carImage, (int(round(w*coords[1])), int(round(h*coords[0]))), (int(round(w*coords[3])), int(round(h*coords[2]))), (0,0,255), 2)
+    
+    cv2.imshow("Without tires", carImage)
+    cv2.imwrite("result2.jpeg", carImage)
+    
     # When everything done, release the video capture object
-    cap.release()
+    #cap.release()
 
     # Closes all the frames
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()

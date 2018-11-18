@@ -5,20 +5,17 @@ from edge_detector import EdgeDetector
 
 # load a clean model
 ed = EdgeDetector()
-process_video("original.mov", ed)
-ed.store("emm.npy")
 
+#process_video("original.mov", ed)
+#ed.store("emm.npy")
 ed.load("emm.npy")
-process_video("damaged.mov", ed)
-
-'''
-#ed.load("emm.npy")
 
 # wait for the first user to return the car
-process_video("damaged.mp4", ed)
+process_video("damaged.mov", ed)
+ed.store("emm_damaged1.npy")
 
 # wait for the second user to return the car
-process_video("damaged2.mp4", ed)
-
-# store if you want
-'''
+ed = EdgeDetector()
+ed.load("emm_damaged1.npy")
+process_video("damaged2.mov", ed)
+ed.store("emm_damaged2.npy")
