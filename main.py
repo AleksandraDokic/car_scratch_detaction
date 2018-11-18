@@ -8,6 +8,7 @@ ed = EdgeDetector()
 
 #process_video("original.mov", ed)
 #ed.store("emm.npy")
+
 ed.load("emm.npy")
 
 # wait for the first user to return the car
@@ -19,3 +20,4 @@ ed = EdgeDetector()
 ed.load("emm_damaged1.npy")
 process_video("damaged2.mov", ed)
 ed.store("emm_damaged2.npy")
+#'''

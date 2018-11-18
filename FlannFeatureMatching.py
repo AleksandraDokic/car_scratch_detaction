@@ -71,7 +71,7 @@ def deleteOutTheTires(img_orange, img_black_tresholded):
 
     if len(contours) != 0:
         # draw in blue the contours that were founded
-        cv2.drawContours(img_orange, contours, -1, 255, 3)
+        #cv2.drawContours(img_orange, contours, -1, 255, 3)
         c1 = contours[-1]
         c2 = contours[-2]
 
@@ -79,17 +79,17 @@ def deleteOutTheTires(img_orange, img_black_tresholded):
         x2, y2, w2, h2 = cv2.boundingRect(c2)
 
         # draw the book contour (in green)
-        cv2.rectangle(img_orange, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.rectangle(img_orange, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)
+        #cv2.rectangle(img_orange, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        #cv2.rectangle(img_orange, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)
 
         if y > y2:
             roi_big = roi_big[0: y + h/2,0:width]
+            cv2.rectangle(img_orange, (0, width), (0, y+h/2), (255, 255, 255), 2)
         else:
             roi_big = roi_big[0: y2 + h2/2, 0:width]
+            cv2.rectangle(img_orange, (0, width), (0, y2+h2/2), (255, 255, 255), 2)
 
-        return roi_big
-
-
+    return roi_big
 
 
 def cutOutRoi(img):
@@ -110,11 +110,9 @@ def cutOutRoi(img):
     kernel = np.ones((5, 5), np.uint8)
     imgExtractBlueThreshold = cv2.dilate(imgExtractBlueThreshold, kernel, iterations=1)
 
-    cv2.namedWindow("Extracted orange", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Extracted orange", 400, 400)
-    cv2.imshow("Extracted orange", imgExtractBlueThreshold)
-
-
+    #cv2.namedWindow("Extracted orange", cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow("Extracted orange", 400, 400)
+    #cv2.imshow("Extracted orange", imgExtractBlueThreshold)
 
     # find the colors within the specified boundaries and apply
     # the mask
@@ -168,48 +166,34 @@ def extractTheCarArea(img):
     img_final = deleteOutTheTires(img_orange_masked, img_black_threshold)
 
     #cv2.imshow("Thresholded", img_orange_threshold)
-    cv2.imshow("Masked", img_orange_masked)
+    cv2.namedWindow("Car detection", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Car detection", 600, 400)
+    cv2.rectangle(img, (x_o, y_o), (x_o + w_o, y_o + h_o), (255, 255, 255), 2)
+    cv2.imshow("Car detection", img)
+    
     #cv2.imshow("Black detection", img_black_threshold)
-    cv2.imshow("Without tires", img_final)
+    #cv2.imshow("Without tires", img_final)
     return img_final
-
-'''def match_template(img_src, img_dst, template, threshold, color):
-
-        # Store width and heigth of template in w and h
-        w, h = template.shape[:2]
-
-        # Perform match operations.
-        res = cv2.matchTemplate(img_src, template, cv2.TM_CCOEFF_NORMED)
-        # for TM_CCOEFF best match is max match
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
-        # get match location in original image
-        top_left = max_loc
-        bottom_right = (top_left[0] + w, top_left[1] + h)
-
-        # if match above threshold draw it
-        if max_val > threshold:
-            cv2.rectangle(img_dst, top_left, bottom_right, color, 2)
-            return True
-        return False'''
-
-def define_random_point(img):
-    pass
 
 def process_video(filename, ed):
 
     # Create a VideoCapture object and read from input file
     # If the input is the camera, pass 0 instead of the video file name
-    cap = cv2.VideoCapture(filename)
+    cap = cv2.VideoCapture(0)
 
     # Check if camera opened successfully
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
 
     # Read until video is completed
-    while (cap.isOpened()):
+    #while (cap.isOpened()):
+    ret, frame = cap.read()
+    raw_input("Press Enter to start...")    
+        
+    for frs in range(100):
         # Capture frame-by-frame
         ret, frame = cap.read()
+        print(frame.shape)
         if ret == True:
 
             # Display the resulting frame
@@ -221,9 +205,9 @@ def process_video(filename, ed):
 
             canny = cv2.Canny(frame_back,200,400)
 
-            cv2.namedWindow("Canny", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("Canny", 400, 400)
-            cv2.imshow("Canny", canny)
+            #cv2.namedWindow("Canny", cv2.WINDOW_NORMAL)
+            #cv2.resizeWindow("Canny", 400, 400)
+            #cv2.imshow("Canny", canny)
 
             # extract orange area
             carImage = extractTheCarArea(frame)
@@ -264,17 +248,20 @@ def process_video(filename, ed):
     ed.add_new_edges(cv2.Canny(carImage,100,200), True)
     coords = ed.get_new_scratch()
     h, w = carImage.shape[:2]
-    cv2.rectangle(carImage, (int(round(w*coords[1])), int(round(h*coords[0]))), (int(round(w*coords[3])), int(round(h*coords[2]))), (255,0,0), 2)
+    cv2.rectangle(carImage, (int(round(w*coords[1]))-2, int(round(h*coords[0]))+2), (int(round(w*coords[3]))-2, int(round(h*coords[2]))+2), (255,0,255), 2)
     
     coords = ed.get_old_scratch()
-    h, w = carImage.shape[:2]
-    cv2.rectangle(carImage, (int(round(w*coords[1])), int(round(h*coords[0]))), (int(round(w*coords[3])), int(round(h*coords[2]))), (0,0,255), 2)
+    if (coords[1] < coords[3]):
+        h, w = carImage.shape[:2]
+        print(coords[1], coords[3])
+        cv2.rectangle(carImage, (int(round(w*coords[1]))-2, int(round(h*coords[0]))+2), (int(round(w*coords[3])-2), int(round(h*coords[2]))+2), (255,0,0), 2)
     
-    cv2.imshow("Without tires", carImage)
-    cv2.imwrite("result2.jpeg", carImage)
+    cv2.imshow("Detected damage", carImage)
+    cv2.imwrite("result.jpeg", carImage)
+    
+    raw_input("Press Enter to finish")
     
     # When everything done, release the video capture object
-    #cap.release()
-
+    cap.release()
     # Closes all the frames
-    #cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
